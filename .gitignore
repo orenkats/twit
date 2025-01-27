@@ -1,0 +1,38 @@
+# Ignore build outputs
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+
+# Ignore user-specific files
+*.user
+*.vs/
+.vscode/
+.idea/
+
+# Ignore logs and generated files
+*.log
+*.tlog
+*.swp
+*.suo
+*.userprefs
+
+# Ignore deployment-related files
+publish/
+*.db
+*.bak
+
+# Ignore sensitive files
+appsettings.Development.json
+appsettings.Local.json
+.env
+
+# Ignore dependencies restored by NuGet
+*.nuget/
+
+# Ignore Docker-related files
+docker-compose.override.yml
+.dockerignore
+
