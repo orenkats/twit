@@ -52,7 +52,7 @@ namespace TwitterApi.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new TwitterApiException("Failed to fetch data.", response.StatusCode);
+                throw new TwitterApiException("Failed to fetch data.", response.StatusCode, rawResponse);
             }
 
             _logger.LogInformation("Successfully fetched data from {Url}", url);

@@ -6,22 +6,17 @@ namespace TwitterApi.Exceptions
     public class TwitterApiException : Exception
     {
         public HttpStatusCode StatusCode { get; }
+        public string? RawResponse { get; }
 
-        public TwitterApiException(string message, HttpStatusCode statusCode) 
-            : base(message)
+        public TwitterApiException(string message, HttpStatusCode statusCode, string? rawResponse = null) : base(message)
         {
             StatusCode = statusCode;
-        }
-
-        public TwitterApiException(string message, HttpStatusCode statusCode, Exception innerException) 
-            : base(message, innerException)
-        {
-            StatusCode = statusCode;
+            RawResponse = rawResponse;
         }
 
         public override string ToString()
         {
-            return $"{base.ToString()}, StatusCode: {StatusCode}";
+            return $"{base.ToString()}, StatusCode: {StatusCode}, RawResponse: {RawResponse}";
         }
     }
 }

@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Diagnostics;
+using TwitterApi.Exceptions;
 
 namespace TwitterApi.Extensions
 {
@@ -12,23 +14,31 @@ namespace TwitterApi.Extensions
                 errorApp.Run(async context =>
                 {
                     var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                    var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
 
                     context.Response.ContentType = "application/json";
-                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+                    // Determine the appropriate status code
+                    if (exception is TwitterApiException twitterEx)
+                    {
+                        context.Response.StatusCode = (int)twitterEx.StatusCode;
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
 
                     // Log the exception
-                    logger.LogError("An unexpected error occurred: {Path}", context.Request.Path);
+                    logger.LogError(exception, "An error occurred during request processing.");
 
-                    // Serialize the error response to JSON
+                    // Build and serialize the error response
                     var errorResponse = new
                     {
-                        error = "An unexpected error occurred.",
+                        error = exception?.Message ?? "An unexpected error occurred.",
                         statusCode = context.Response.StatusCode
                     };
 
-                    var responseText = JsonSerializer.Serialize(errorResponse);
-
-                    await context.Response.WriteAsync(responseText);
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
                 });
             });
 
