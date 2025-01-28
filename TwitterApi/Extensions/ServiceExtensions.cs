@@ -10,10 +10,7 @@ namespace TwitterApi.Extensions
            
             services.AddHttpClient<ITwitterService, TwitterService>(client =>
             {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
-                    "Bearer",
-                    bearerToken
-                );
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", bearerToken);
             });
 
             services.AddControllers();
