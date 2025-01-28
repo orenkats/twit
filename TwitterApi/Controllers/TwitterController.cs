@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TwitterApi.Services;
+using TwitterApi.DTOs;
 
 namespace TwitterApi.Controllers
 {
@@ -14,10 +15,15 @@ namespace TwitterApi.Controllers
             _twitterService = twitterService;
         }
 
-        [HttpGet("last10tweets")]
-        public async Task<IActionResult> GetLast10Tweets()
+        [HttpGet("tweets")]
+        public async Task<IActionResult> GetTweets([FromQuery] TweetRequestDto request)
         {
-            var tweetDtos = await _twitterService.GetLast10TweetsAsync();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var tweetDtos = await _twitterService.GetTweetsAsync(request.Query, request.MaxResults);
             return Ok(tweetDtos);
         }
     }

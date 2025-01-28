@@ -32,7 +32,7 @@ namespace TwitterApi.Extensions
                 });
             });
 
-            app.UseMiddleware<Middlewares.LoggingMiddleware>();
+            app.UseMiddleware<Middlewares.RequestResponseLoggingMiddleware>();
 
             app.UseAuthorization();
             app.MapControllers();

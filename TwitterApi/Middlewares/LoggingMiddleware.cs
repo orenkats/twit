@@ -1,11 +1,11 @@
 namespace TwitterApi.Middlewares
 {
-    public class LoggingMiddleware
+    public class RequestResponseLoggingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<LoggingMiddleware> _logger;
+        private readonly ILogger<RequestResponseLoggingMiddleware> _logger;
 
-        public LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> logger)
+        public RequestResponseLoggingMiddleware(RequestDelegate next, ILogger<RequestResponseLoggingMiddleware> logger)
         {
             _next = next;
             _logger = logger;

@@ -4,6 +4,6 @@ namespace TwitterApi.Services
 {
     public interface ITwitterService
     {
-        Task<IEnumerable<TweetDto>> GetLast10TweetsAsync();
+        Task<IEnumerable<TweetDto>> GetTweetsAsync(string query , int maxResults );
     }
 }

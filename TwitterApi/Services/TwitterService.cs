@@ -1,4 +1,6 @@
 using System.Text.Json;
+using TwitterApi.Exceptions;
+using Microsoft.AspNetCore.WebUtilities;
 using TwitterApi.Models;
 using TwitterApi.DTOs;
 
@@ -8,52 +10,60 @@ namespace TwitterApi.Services
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<TwitterService> _logger;
+        private readonly string _baseUrl;
 
-        public TwitterService(HttpClient httpClient, ILogger<TwitterService> logger)
+        public TwitterService(HttpClient httpClient, ILogger<TwitterService> logger, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _logger = logger;
+            _baseUrl = configuration["Twitter:BaseUrl"] ;
         }
 
-        public async Task<IEnumerable<TweetDto>> GetLast10TweetsAsync()
+        public async Task<IEnumerable<TweetDto>> GetTweetsAsync(string query = "news", int maxResults = 10)
         {
-            var query = "news";
-            var maxResults = 10;
-            var url = $"https://api.twitter.com/2/tweets/search/recent?query={query}&max_results={maxResults}";
+            var url = $"{_baseUrl}/tweets/search/recent?query={Uri.EscapeDataString(query)}&max_results={maxResults}";
 
             _logger.LogInformation("Sending request to Twitter API: {Url}", url);
 
-            var response = await _httpClient.GetAsync(url);
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning("Failed to fetch tweets. Status: {StatusCode}", response.StatusCode);
-                return Enumerable.Empty<TweetDto>();
-            }
+            var tweetsResponse = await FetchFromApiAsync<TweetsResponse>(url);
 
-            var rawResponse = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Raw Twitter API Response: {Response}", rawResponse);
-
-            var tweetsResponse = JsonSerializer.Deserialize<TweetsResponse>(rawResponse, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            if (tweetsResponse?.Data == null || !tweetsResponse.Data.Any())
+            if (tweetsResponse.Data == null || !tweetsResponse.Data.Any())
             {
                 _logger.LogWarning("No tweets found for query: {Query}", query);
                 return Enumerable.Empty<TweetDto>();
             }
 
-            // Map the model to the DTO
             var tweetDtos = tweetsResponse.Data.Select(t => new TweetDto
             {
-                Text = t.Text,
-                
+                Text = t.Text
             }).ToList();
 
             _logger.LogInformation("Fetched and transformed {Count} tweets.", tweetDtos.Count);
 
             return tweetDtos;
         }
+
+        private async Task<T> FetchFromApiAsync<T>(string url)
+        {
+            
+            var response = await _httpClient.GetAsync(url);
+
+            var rawResponse = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new TwitterApiException("Failed to fetch data.", response.StatusCode);
+            }
+
+            _logger.LogInformation("Successfully fetched data from {Url}", url);
+
+            var result = JsonSerializer.Deserialize<T>(rawResponse, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            return result;
+        }
+
     }
 }
