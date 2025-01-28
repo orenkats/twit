@@ -23,13 +23,10 @@ namespace TwitterApi.Services
         {
             var url = $"{_baseUrl}/tweets/search/recent?query={Uri.EscapeDataString(query)}&max_results={maxResults}";
 
-            _logger.LogInformation("Sending request to Twitter API: {Url}", url);
-
             var tweetsResponse = await FetchFromApiAsync<TweetsResponse>(url);
 
             if (tweetsResponse.Data == null || !tweetsResponse.Data.Any())
             {
-                _logger.LogWarning("No tweets found for query: {Query}", query);
                 return Enumerable.Empty<TweetDto>();
             }
 
@@ -37,8 +34,6 @@ namespace TwitterApi.Services
             {
                 Text = t.Text
             }).ToList();
-
-            _logger.LogInformation("Fetched and transformed {Count} tweets.", tweetDtos.Count);
 
             return tweetDtos;
         }
@@ -54,8 +49,6 @@ namespace TwitterApi.Services
             {
                 throw new TwitterApiException("Failed to fetch data.", response.StatusCode, rawResponse);
             }
-
-            _logger.LogInformation("Successfully fetched data from {Url}", url);
 
             var result = JsonSerializer.Deserialize<T>(rawResponse, new JsonSerializerOptions
             {

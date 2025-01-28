@@ -4,11 +4,10 @@ using TwitterApi.Exceptions;
 
 namespace TwitterApi.Extensions
 {
-    public static class ApplicationPipelineExtensions
+   public static class ApplicationPipelineExtensions
     {
         public static WebApplication ConfigureApplicationPipeline(this WebApplication app)
         {
-            // Add built-in exception handling middleware
             app.UseExceptionHandler(errorApp =>
             {
                 errorApp.Run(async context =>
@@ -18,20 +17,18 @@ namespace TwitterApi.Extensions
 
                     context.Response.ContentType = "application/json";
 
-                    // Determine the appropriate status code
                     if (exception is TwitterApiException twitterEx)
                     {
                         context.Response.StatusCode = (int)twitterEx.StatusCode;
+                        logger.LogError("Twitter API error: {RawResponse}", twitterEx.RawResponse);
                     }
                     else
                     {
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
 
-                    // Log the exception
                     logger.LogError(exception, "An error occurred during request processing.");
 
-                    // Build and serialize the error response
                     var errorResponse = new
                     {
                         error = exception?.Message ?? "An unexpected error occurred.",
@@ -43,7 +40,6 @@ namespace TwitterApi.Extensions
             });
 
             app.UseMiddleware<Middlewares.RequestResponseLoggingMiddleware>();
-
             app.UseAuthorization();
             app.MapControllers();
 
