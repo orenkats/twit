@@ -4,5 +4,8 @@ services:
     build: .
     ports:
       - "8081:80"
-    env_file:
-      - .env
+    environment:
+      Twitter__ApiKey: "your_api_key"
+      Twitter__ApiSecret: "your_api_secret"
+      Twitter__AccessToken: "your_access_token"
+      Twitter__AccessTokenSecret: "your_access_token_secret"
