@@ -53,7 +53,7 @@ TwitterApi/
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/your-repo/twitter-api.git
+   git clone https://github.com/orenkats/twit.git
    cd twitter-api
    ```
 
